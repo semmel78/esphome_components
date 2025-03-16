@@ -5,7 +5,7 @@
 #include "esphome/components/i2c/i2c.h"
 
 namespace esphome {
-namespace empty_i2c_sensor {
+namespace EmptyI2CSensor {
 
 class EmptyI2CSensor : public sensor::Sensor, public PollingComponent, public i2c::I2CDevice {
  public:

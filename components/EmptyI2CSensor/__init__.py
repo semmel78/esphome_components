@@ -7,7 +7,7 @@ DEPENDENCIES = ['i2c']
 
 CONF_I2C_ADDR = 0x01
 
-empty_i2c_sensor_ns = cg.esphome_ns.namespace('empty_i2c_sensor')
+empty_i2c_sensor_ns = cg.esphome_ns.namespace('EmptyI2CSensor')
 EmptyI2CSensor = empty_i2c_sensor_ns.class_('EmptyI2CSensor', cg.PollingComponent, i2c.I2CDevice)
 
 CONFIG_SCHEMA = sensor.sensor_schema(UNIT_EMPTY, ICON_EMPTY, 1).extend({

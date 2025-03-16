@@ -2,9 +2,9 @@
 #include "empty_i2c_sensor.h"
 
 namespace esphome {
-namespace empty_i2c_sensor {
+namespace EmptyI2CSensor {
 
-static const char *TAG = "empty_i2c_sensor.sensor";
+static const char *TAG = "EmptyI2CSensor.sensor";
 
 void EmptyI2CSensor::setup(){
     
