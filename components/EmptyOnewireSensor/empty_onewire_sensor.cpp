@@ -7,15 +7,15 @@ namespace empty_onewire_sensor {
 
 static const char *TAG = "EmptyOnewireSensor.sensor";
 
-void EmptyI2CSensor::setup(){
+void EmptyOnewireSensor::setup(){
     
 }
 
-void EmptyI2CSensor::update(){
+void EmptyOnewireSensor::update(){
 
 }
 
-void EmptyI2CSensor::dump_config(){
+void EmptyOnewireSensor::dump_config(){
 
 }
 
