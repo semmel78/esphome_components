@@ -161,8 +161,6 @@ void DS2438Sensor::loop() {
         float temp_corr = 1.0546f - 0.00216f * this->temp_;
         if (temp_corr <= 0.0f) temp_corr = 0.0001f;  // not expected, just for safety
         float hum = (this->Vad_ / this->Vdd_ - 0.16f) / (0.0062f * temp_corr);
-	if (hum < 0) hum = 0; 
-	if (hum > 100) hum = 100;
         this->humidity_sensor_->publish_state(hum);
       }
       // reset state
