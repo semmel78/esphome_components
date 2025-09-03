@@ -1,4 +1,3 @@
-
 # ESPHome WS2811 Channels
 
 Control individual **WS2811 output channels** (R / G / B) as **separate light entities** in Home Assistant.
