@@ -2,7 +2,8 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import light
-from esphome.const import CONF_ID, CONF_NAME, CONF_DISABLED_BY_DEFAULT
+from esphome.const import CONF_ID, CONF_NAME, CONF_DISABLED_BY_DEFAULT, CONF_RESTORE_MODE
+from esphome.components.light import LightRestoreMode
 
 # Diese Komponente kann in YAML direkt als Top-Level-Key "ws2811_channels:" benutzt werden.
 AUTO_LOAD = ["light"]
@@ -69,4 +70,5 @@ async def to_code(config):
             CONF_ID: ch[CONF_ID],
             CONF_NAME: name,
             CONF_DISABLED_BY_DEFAULT: False,
+            CONF_RESTORE_MODE: LightRestoreMode.RESTORE_DEFAULT_OFF,  # <<< neu
         })
