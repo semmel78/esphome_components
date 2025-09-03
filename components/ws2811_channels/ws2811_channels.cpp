@@ -15,11 +15,15 @@ void WS2811ChannelsController::set_channel_value(int pixel, int color, uint8_t v
   else if (color == 1) g_[pixel] = value;
   else b_[pixel] = value;
 
-  // Pixel im Ausgabe-Treiber setzen + Show planen
-  auto *out = this->strip_state_->get_output();   // AddressableLightOutput*
+  // Addressable-Output holen und exakt EIN Pixel aktualisieren
+  auto *out = static_cast<light::AddressableLight *>(this->strip_state_->get_output());
   if (out != nullptr) {
-    out->set_pixel(pixel, r_[pixel], g_[pixel], b_[pixel]);
-    this->strip_state_->schedule_show();          // Buffer -> LEDs
+    // Range [pixel, pixel+1): genau ein Pixel
+    auto rng = out->range(pixel, pixel + 1);
+    rng.set_red(r_[pixel]);
+    rng.set_green(g_[pixel]);
+    rng.set_blue(b_[pixel]);
+    out->schedule_show();  // Buffer -> LEDs
   }
 }
 
@@ -28,16 +32,15 @@ WS2811ChannelLight::WS2811ChannelLight(WS2811ChannelsController *ctrl, int pixel
 
 void WS2811ChannelLight::write_state(light::LightState *state) {
   float brightness = 0.0f;
-  state->current_values_as_brightness(&brightness);    // 0.0 .. 1.0
+  state->current_values_as_brightness(&brightness);  // 0.0 .. 1.0
   const uint8_t v = static_cast<uint8_t>(brightness * 255.0f);
   this->ctrl_->set_channel_value(this->pixel_, this->color_, v);
 }
 
 light::LightTraits WS2811ChannelLight::get_traits() {
   light::LightTraits t;
-  t.set_supports_brightness(true);
-  t.set_supports_rgb(false);
-  t.set_supports_color_temperature(false);
+  // Monochrom-Kanal → nur Helligkeit
+  t.set_supported_color_modes({light::ColorMode::BRIGHTNESS});
   return t;
 }
 
