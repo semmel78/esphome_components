@@ -21,11 +21,11 @@ That way, you can directly control each output channel as an individual light.
 ```
 
 esphome/
-components/
-ws2811\_channels/
-**init**.py
-ws2811\_channels.h
-ws2811\_channels.cpp
+  components/
+    ws2811_channels/
+      __init__.py
+      ws2811_channels.h
+      ws2811_channels.cpp
 
 ````
 
@@ -37,8 +37,11 @@ Add the component via `external_components` in your ESPHome YAML:
 
 ```yaml
 external_components:
-  - source: github://YOUR_USERNAME/ws2811_channels
-    components: [ws2811_channels]
+  source:
+    type: git
+    url: https://github.com/semmel78/esphome_components/
+    ref: main
+  components: [ws2811_channels]
 ````
 
 ---
@@ -139,7 +142,7 @@ Each can be toggled or dimmed independently.
 
 ## 🧰 Development Notes
 
-* Written against ESPHome `2025.x`.
+* Written against ESPHome `2025.8`.
 * Uses `AddressableLight` API for per-pixel control.
 * Traits advertise only `ColorMode::BRIGHTNESS` (monochrome).
 * Defaults to `restore_mode: LIGHT_RESTORE_DEFAULT_OFF`.
