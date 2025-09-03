@@ -1,46 +1,39 @@
-#include "ws2811_channels.h"
+#include "esphome/components/ws2811_channels/ws2811_channels.h"
 
-WS2811ChannelLight::WS2811ChannelLight(esphome::light::AddressableLight *strip, int pixel, int color)
-  : strip_(strip), pixel_(pixel), color_(color), value_(0.0f) {}
+namespace esphome {
+namespace ws2811_channels {
 
-void WS2811ChannelLight::write_state(esphome::light::LightState *state) {
-  float brightness;
+WS2811ChannelLight::WS2811ChannelLight(light::AddressableLight *strip, int pixel, int color)
+    : strip_(strip), pixel_(pixel), color_(color) {}
+
+void WS2811ChannelLight::write_state(light::LightState *state) {
+  // Helligkeit (0.0..1.0) holen
+  float brightness = 0.0f;
   state->current_values_as_brightness(&brightness);
-  value_ = brightness;
 
-  auto c = strip_->get(pixel_);
+  // Aktuelle RGB-Werte des Pixels lesen
+  auto c = this->strip_->get(this->pixel_);
   uint8_t r = c.red, g = c.green, b = c.blue;
 
-  switch (color_) {
-    case 0: r = static_cast<uint8_t>(brightness * 255); break;
-    case 1: g = static_cast<uint8_t>(brightness * 255); break;
-    case 2: b = static_cast<uint8_t>(brightness * 255); break;
-  }
+  // Nur den gewünschten Kanal überschreiben
+  const uint8_t v = static_cast<uint8_t>(brightness * 255.0f);
+  if (this->color_ == 0) r = v;
+  else if (this->color_ == 1) g = v;
+  else b = v;
 
-  strip_->get_output()->set_pixel(pixel_, r, g, b);
-  strip_->schedule_show();
+  // Pixel setzen + Ausgabe planen
+  this->strip_->get_output()->set_pixel(this->pixel_, r, g, b);
+  this->strip_->schedule_show();
 }
 
-esphome::light::LightTraits WS2811ChannelLight::get_traits() {
-  auto traits = esphome::light::LightTraits();
-  traits.set_supports_brightness(true);
-  traits.set_supports_rgb(false);
-  return traits;
+light::LightTraits WS2811ChannelLight::get_traits() {
+  light::LightTraits t;
+  t.set_supports_brightness(true);
+  // Mono-Channel: keine Farbe / kein CCT
+  t.set_supports_rgb(false);
+  t.set_supports_color_temperature(false);
+  return t;
 }
 
-WS2811Channels::WS2811Channels(esphome::light::AddressableLight *strip) : strip_(strip) {
-  int num_pixels = strip_->size();
-  for (int i = 0; i < num_pixels; i++) {
-    for (int c = 0; c < 3; c++) {
-      channels_.push_back(new WS2811ChannelLight(strip_, i, c));
-    }
-  }
-}
-
-WS2811ChannelLight *WS2811Channels::get_channel(int i) {
-  return channels_[i];
-}
-
-int WS2811Channels::channel_count() const {
-  return channels_.size();
-}
+}  // namespace ws2811_channels
+}  // namespace esphome

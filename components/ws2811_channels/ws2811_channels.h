@@ -1,28 +1,21 @@
 #pragma once
 #include "esphome.h"
-#include <vector>
 
-class WS2811ChannelLight : public esphome::light::LightOutput {
+namespace esphome {
+namespace ws2811_channels {
+
+class WS2811ChannelLight : public light::LightOutput {
  public:
-  WS2811ChannelLight(esphome::light::AddressableLight *strip, int pixel, int color);
+  WS2811ChannelLight(light::AddressableLight *strip, int pixel, int color);
 
-  void write_state(esphome::light::LightState *state) override;
-  esphome::light::LightTraits get_traits() override;
+  void write_state(light::LightState *state) override;
+  light::LightTraits get_traits() override;
 
  protected:
-  esphome::light::AddressableLight *strip_;
-  int pixel_;
-  int color_; // 0=Red, 1=Green, 2=Blue
-  float value_;
+  light::AddressableLight *strip_;
+  int pixel_;   // 0..num_pixels-1
+  int color_;   // 0=R, 1=G, 2=B
 };
 
-class WS2811Channels : public esphome::Component {
- public:
-  WS2811Channels(esphome::light::AddressableLight *strip);
-  WS2811ChannelLight *get_channel(int i);
-  int channel_count() const;
-
- protected:
-  esphome::light::AddressableLight *strip_;
-  std::vector<WS2811ChannelLight *> channels_;
-};
+}  // namespace ws2811_channels
+}  // namespace esphome
