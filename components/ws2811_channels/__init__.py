@@ -17,6 +17,8 @@ ChannelLight = ns.class_("WS2811ChannelLight", light.LightOutput)
 
 CONFIG_SCHEMA = cv.Schema(
     {
+        # Der Controller bekommt eine eigene ID
+        cv.GenerateID(): cv.declare_id(Controller),
         cv.Required(CONF_STRIP_ID): cv.use_id(light.AddressableLightState),
         cv.Required(CONF_NUM_PIXELS): cv.int_range(min=1),
         cv.Optional(CONF_NAME_PREFIX, default="Pixel"): cv.string,
@@ -24,15 +26,18 @@ CONFIG_SCHEMA = cv.Schema(
 )
 
 async def to_code(config):
-    strip_state = await cg.get_variable(config[CONF_STRIP_ID])  # AddressableLightState*
+    strip_state = await cg.get_variable(config[CONF_STRIP_ID])   # AddressableLightState*
     num_pixels = config[CONF_NUM_PIXELS]
     name_prefix = config[CONF_NAME_PREFIX]
     colors = ["Red", "Green", "Blue"]
 
-    ctrl = cg.new_Pvariable(Controller, strip_state, num_pixels)
+    # Controller mit eigener ID anlegen
+    ctrl = cg.new_Pvariable(config[CONF_ID], Controller, strip_state, num_pixels)
     await cg.register_component(ctrl)
 
+    # Für jeden Pixel & Kanal ein LightOutput anlegen (mit eigener, generierter ID)
     for p in range(num_pixels):
         for c, cname in enumerate(colors):
-            light_var = cg.new_Pvariable(ChannelLight, ctrl, p, c)
-            await light.register_light(light_var, {CONF_NAME: f"{name_prefix} {p+1} - {cname}"})
+            light_id = cg.new_id()  # generiere neue Variable-ID
+            var = cg.new_Pvariable(light_id, ChannelLight, ctrl, p, c)
+            await light.register_light(var, {CONF_NAME: f"{name_prefix} {p+1} - {cname}"})
