@@ -10,14 +10,17 @@ class WS2811ChannelsController : public Component {
  public:
   WS2811ChannelsController(light::AddressableLightState *strip_state, int num_pixels);
 
+  void setup() override;   // <<< NEU: hier ermitteln wir die echte Pixelzahl
+  void loop() override;
+
   void set_channel_value(int pixel, int color, uint8_t value);
-  void loop() override;  // <<< NEU
 
  protected:
   light::AddressableLightState *strip_state_{nullptr};
   int num_pixels_{0};
+  int initial_num_pixels_{0};   // <<< NEU: Wert aus dem Ctor (0 = auto)
   std::vector<uint8_t> r_, g_, b_;
-  bool dirty_{false};     // <<< NEU: zeigt an, dass ein Flush nötig ist
+  bool dirty_{false};
 };
 
 // Ein einzelner Mono-Channel (R oder G oder B) als eigenes LightOutput.
