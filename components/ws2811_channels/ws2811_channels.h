@@ -10,13 +10,14 @@ class WS2811ChannelsController : public Component {
  public:
   WS2811ChannelsController(light::AddressableLightState *strip_state, int num_pixels);
 
-  // vom Channel-Light aufgerufen
   void set_channel_value(int pixel, int color, uint8_t value);
+  void loop() override;  // <<< NEU
 
  protected:
   light::AddressableLightState *strip_state_{nullptr};
   int num_pixels_{0};
   std::vector<uint8_t> r_, g_, b_;
+  bool dirty_{false};     // <<< NEU: zeigt an, dass ein Flush nötig ist
 };
 
 // Ein einzelner Mono-Channel (R oder G oder B) als eigenes LightOutput.
