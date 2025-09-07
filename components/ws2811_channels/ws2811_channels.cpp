@@ -10,21 +10,29 @@ WS2811ChannelsController::WS2811ChannelsController(light::AddressableLightState 
 void WS2811ChannelsController::set_channel_value(int pixel, int color, uint8_t value) {
   if (pixel < 0 || pixel >= num_pixels_ || color < 0 || color > 2) return;
 
-  // Cache aktualisieren
   if (color == 0) r_[pixel] = value;
   else if (color == 1) g_[pixel] = value;
   else b_[pixel] = value;
 
-  // Addressable-Output holen und exakt EIN Pixel aktualisieren
+  dirty_ = true;  // <<< Nur markieren; tatsächliches Schreiben im loop()
+}
+
+void WS2811ChannelsController::loop() {
+  if (!dirty_) return;
+
   auto *out = static_cast<light::AddressableLight *>(this->strip_state_->get_output());
-  if (out != nullptr) {
-    // Range [pixel, pixel+1): genau ein Pixel
-    auto rng = out->range(pixel, pixel + 1);
-    rng.set_red(r_[pixel]);
-    rng.set_green(g_[pixel]);
-    rng.set_blue(b_[pixel]);
-    out->schedule_show();  // Buffer -> LEDs
+  if (out == nullptr) return;
+
+  // Alle Pixel aus Cache setzen
+  for (int p = 0; p < num_pixels_; p++) {
+    auto rng = out->range(p, p + 1);
+    rng.set_red(r_[p]);
+    rng.set_green(g_[p]);
+    rng.set_blue(b_[p]);
   }
+
+  out->schedule_show();   // jetzt einmalig senden
+  dirty_ = false;
 }
 
 WS2811ChannelLight::WS2811ChannelLight(WS2811ChannelsController *ctrl, int pixel, int color)
@@ -32,14 +40,13 @@ WS2811ChannelLight::WS2811ChannelLight(WS2811ChannelsController *ctrl, int pixel
 
 void WS2811ChannelLight::write_state(light::LightState *state) {
   float brightness = 0.0f;
-  state->current_values_as_brightness(&brightness);  // 0.0 .. 1.0
+  state->current_values_as_brightness(&brightness);
   const uint8_t v = static_cast<uint8_t>(brightness * 255.0f);
   this->ctrl_->set_channel_value(this->pixel_, this->color_, v);
 }
 
 light::LightTraits WS2811ChannelLight::get_traits() {
   light::LightTraits t;
-  // Monochrom-Kanal → nur Helligkeit
   t.set_supported_color_modes({light::ColorMode::BRIGHTNESS});
   return t;
 }
